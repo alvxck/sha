@@ -2,6 +2,8 @@
 #include <vector>
 #include <iostream>
 #include <bitset>
+#include <string>
+#include <cmath>
 
 
 const uint32_t SHA1::entryConstants[80] = {
@@ -21,14 +23,18 @@ const uint32_t SHA1::hashConstants[5] = {
     0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0
 };
 
+uint32_t SHA1::rotl(uint32_t x, uint32_t n) {
+    return fmod((x << n) | (x >> (32 - n)), pow(2, 32));
+};
+
 std::string sha1(std::string input) {
     // Pre-process input bits
-    uint64_t inputLength = input.length() * 8;
+    uint32_t inputLength = input.length() * 8;
     std::string raw;
 
     for (int i = 0; i < inputLength / 8; i++) {
         raw += std::bitset<8>(input[i]).to_string();
-    }
+    }   
 
     raw += "1";
 
@@ -41,8 +47,24 @@ std::string sha1(std::string input) {
     }
 
     // Initialize chunks
+    std::vector<uint32_t*> chunks;
+
+    for (int i = 0; i < raw.length() / 512; i++) {
+        uint32_t chunk[80] = {0};
+
+        for (int j = 0; j < 16; j++) {
+            chunk[j] = std::stoi(raw.substr(j*32, 32), nullptr, 2);
+        }
+
+        chunks.push_back(chunk);
+    }
 
     // Compress chunks
+    for (int i = 0; i < chunks.size(); i++) {
+        for (int j = 16; j < 80; j++) {
+            chunks[i][j] = fmod(SHA1::rotl(chunks[i][j-3] ^ chunks[i][j-8] ^ chunks[i][j-14] ^ chunks[i][j-16], 1), pow(2, 32));
+        }
+    }
 
     // Mutate chunks
 

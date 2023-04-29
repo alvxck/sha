@@ -7,8 +7,9 @@ class SHA1 {
     private:
         const static uint32_t entryConstants[80];
         const static uint32_t hashConstants[5];
-
-        uint32_t rotl(uint32_t x, uint32_t n);
+    
+    public:
+        static uint32_t rotl(uint32_t x, uint32_t n);
 };
 
 std::string sha1(std::string input);
