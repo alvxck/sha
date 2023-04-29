@@ -4,11 +4,10 @@
 #include <iostream>
 
 class SHA1 {
-    private:
+    public:
         const static uint32_t entryConstants[80];
         const static uint32_t hashConstants[5];
     
-    public:
         static uint32_t rotl(uint32_t x, uint32_t n);
 };
 

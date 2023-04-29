@@ -4,7 +4,7 @@
 int main() {
     std::string input = "Hello, world!";
 
-    sha1(input);
+    std::cout << sha1(input) << std::endl;
 
     return 0;
 }
