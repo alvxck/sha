@@ -84,14 +84,12 @@ std::string sha1(std::string input) {
 
             if (j < 20) {
                 f = (b & c) | ((~b) & d);
-            } 
-            if (j < 40) {
+            } else if (j < 40) {
                 f = b ^ c ^ d;
-            } 
-            if (j < 60) {
+            } else if (j < 60) {
                 f = (b & c) | (b & d) | (c & d);
             }
-            if (j < 80) {
+            else {
                 f = b ^ c ^ d;
             }
 
