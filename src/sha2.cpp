@@ -66,3 +66,9 @@ const uint64_t hash_constants[6][8] = {
         0x96283ee2a88effe3, 0xbe5e1e2553863992, 0x2b0199fc2c85b8aa, 0x0eb72ddc81c52ca2
     },
 };
+
+uint32_t SHA2::rotr(uint32_t x, uint32_t n) {
+    return fmod((x >> n) | (x << (32 - n)), pow(2, 32));
+};
+
+SHA2::
