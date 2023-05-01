@@ -15,7 +15,7 @@ uint32_t SHA2::rotr32(uint32_t x, uint8_t n) {
 };
 
 uint64_t SHA2::rotr64(uint64_t x, uint8_t n) {
-    return fmod((x >> n) | (x << (64 - n)), pow(2, 64));
+    return fmodl((x >> n) | (x << (64 - n)), powl(2, 64));
 };
 
 void SHA2::hash32(uint16_t bit_length, uint32_t *hash_constants) {
@@ -142,20 +142,9 @@ void SHA2::hash64(uint16_t bit_length, uint64_t *hash_constants) {
         for (int j = 16; j < 80; j++) {
             uint64_t s0 = SHA2::rotr64(chunks[i][j-15], 1) ^ SHA2::rotr64(chunks[i][j-15], 8) ^ (chunks[i][j-15] >> 7);
             uint64_t s1 = SHA2::rotr64(chunks[i][j-2], 19) ^ SHA2::rotr64(chunks[i][j-2], 61) ^ (chunks[i][j-2] >> 6);
-            chunks[i][j] = fmod(chunks[i][j-16] + s0 + chunks[i][j-7] + s1, pow(2, 64));
+            chunks[i][j] = fmodl(chunks[i][j-16] + s0 + chunks[i][j-7] + s1, powl(2, 64));
         }
     }
-
-    // print vector 
-
-    for (int i = 0; i < chunks.size(); i++) {
-        for (int j = 0; j < 80; j++) {
-            std::cout << chunks[i][j] << " ";
-        }
-    }
-
-    exit(0);
-
 
     // Mutate chunks
     for (int i = 0; i < chunks.size(); i++) {
@@ -171,29 +160,29 @@ void SHA2::hash64(uint16_t bit_length, uint64_t *hash_constants) {
         for (int j = 0; j < 80; j++) {
             uint64_t s0 = (SHA2::rotr64(e, 14)) ^ (SHA2::rotr64(e, 18)) ^ (SHA2::rotr64(e, 41));
             uint64_t ch = (e & f) ^ (~e & g);
-            uint64_t temp1 = fmod(h + s0 + ch + SHA2::round_constants_x64[j] + chunks[i][j], pow(2, 64));
+            uint64_t temp1 = fmodl(h + s0 + ch + SHA2::round_constants_x64[j] + chunks[i][j], powl(2, 64));
             uint64_t s1 = (SHA2::rotr64(a, 28)) ^ (SHA2::rotr64(a, 34)) ^ (SHA2::rotr64(a, 39));
             uint64_t maj = (a & b) ^ (a & c) ^ (b & c);
-            uint64_t temp2 = fmod(s1 + maj, pow(2, 64));
+            uint64_t temp2 = fmodl(s1 + maj, powl(2, 64));
 
             h = g;
             g = f;
             f = e;
-            e = fmod(d + temp1, pow(2, 64));
+            e = fmodl(d + temp1, powl(2, 64));
             d = c;
             c = b;
             b = a;
-            a = fmod(temp1 + temp2, pow(2, 64));
+            a = fmodl(temp1 + temp2, powl(2, 64));
         }
 
-        hash_constants[0] = fmod(hash_constants[0] + a, pow(2, 64));
-        hash_constants[1] = fmod(hash_constants[1] + b, pow(2, 64));
-        hash_constants[2] = fmod(hash_constants[2] + c, pow(2, 64));
-        hash_constants[3] = fmod(hash_constants[3] + d, pow(2, 64));
-        hash_constants[4] = fmod(hash_constants[4] + e, pow(2, 64));
-        hash_constants[5] = fmod(hash_constants[5] + f, pow(2, 64));
-        hash_constants[6] = fmod(hash_constants[6] + g, pow(2, 64));
-        hash_constants[7] = fmod(hash_constants[7] + h, pow(2, 64));
+        hash_constants[0] = fmodl(hash_constants[0] + a, powl(2, 64));
+        hash_constants[1] = fmodl(hash_constants[1] + b, powl(2, 64));
+        hash_constants[2] = fmodl(hash_constants[2] + c, powl(2, 64));
+        hash_constants[3] = fmodl(hash_constants[3] + d, powl(2, 64));
+        hash_constants[4] = fmodl(hash_constants[4] + e, powl(2, 64));
+        hash_constants[5] = fmodl(hash_constants[5] + f, powl(2, 64));
+        hash_constants[6] = fmodl(hash_constants[6] + g, powl(2, 64));
+        hash_constants[7] = fmodl(hash_constants[7] + h, powl(2, 64));
     }
 
     for (int i = 0; i < 8; i++) {
