@@ -67,8 +67,46 @@ const uint64_t hash_constants[6][8] = {
     },
 };
 
-uint32_t SHA2::rotr(uint32_t x, uint32_t n) {
+SHA2::SHA2(std::string input) {
+    this->input = input;
+}
+
+uint32_t SHA2::rotr32(uint32_t x, uint32_t n) {
     return fmod((x >> n) | (x << (32 - n)), pow(2, 32));
 };
 
-SHA2::
+uint64_t SHA2::rotr64(uint64_t x, uint64_t n) {
+    return fmod((x >> n) | (x << (64 - n)), pow(2, 64));
+};
+
+void SHA2::hash32(uint8_t bit_length) {
+    
+};
+
+void SHA2::hash64(uint8_t bit_length) {
+    
+};
+
+std::string SHA2::getHash() {
+    return this->hash;
+}
+
+// std::string sha224(std::string input) {
+//     SHA2 *hash = new SHA2();
+//     return hash->hash32(input, 224, hash_constants[0]);
+// };
+
+// std::string sha256(std::string input) {
+// };
+
+// std::string sha384(std::string input) {
+// };
+
+// std::string sha512(std::string input) {
+// };
+
+// std::string sha512_224(std::string input) {
+// };
+
+// std::string sha512_256(std::string input) {
+// };
