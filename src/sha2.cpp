@@ -10,21 +10,21 @@ SHA2::SHA2(std::string input) {
     this->input = input;
 }
 
-uint32_t SHA2::rotr32(uint32_t x, uint32_t n) {
+uint32_t SHA2::rotr32(uint32_t x, uint8_t n) {
     return fmod((x >> n) | (x << (32 - n)), pow(2, 32));
 };
 
-uint64_t SHA2::rotr64(uint64_t x, uint64_t n) {
+uint64_t SHA2::rotr64(uint64_t x, uint8_t n) {
     return fmod((x >> n) | (x << (64 - n)), pow(2, 64));
 };
 
 void SHA2::hash32(uint16_t bit_length, uint32_t *hash_constants) {
     // Pre-process input bits
-    uint32_t inputLength = input.length() * 8;
+    uint32_t inputLength = this->input.length() * 8;
     std::string raw;
 
     for (int i = 0; i < inputLength / 8; i++) {
-        raw += std::bitset<8>(input[i]).to_string();
+        raw += std::bitset<8>(this->input[i]).to_string();
     }   
 
     raw += "1";
@@ -71,10 +71,10 @@ void SHA2::hash32(uint16_t bit_length, uint32_t *hash_constants) {
         uint32_t h = hash_constants[7];
 
         for (int j = 0; j < 64; j++) {
-            uint32_t s0 = SHA2::rotr32(e, 6) ^ SHA2::rotr32(e, 11) ^ SHA2::rotr32(e, 25);
+            uint32_t s0 = (SHA2::rotr32(e, 6)) ^ (SHA2::rotr32(e, 11)) ^ (SHA2::rotr32(e, 25));
             uint32_t ch = (e & f) ^ (~e & g);
             uint32_t temp1 = fmod(h + s0 + ch + SHA2::round_constants_x32[j] + chunks[i][j], pow(2, 32));
-            uint32_t s1 = SHA2::rotr32(a, 2) ^ SHA2::rotr32(a, 13) ^ SHA2::rotr32(a, 22);
+            uint32_t s1 = (SHA2::rotr32(a, 2)) ^ (SHA2::rotr32(a, 13)) ^ (SHA2::rotr32(a, 22));
             uint32_t maj = (a & b) ^ (a & c) ^ (b & c);
             uint32_t temp2 = fmod(s1 + maj, pow(2, 32));
 
@@ -106,7 +106,103 @@ void SHA2::hash32(uint16_t bit_length, uint32_t *hash_constants) {
 };
 
 void SHA2::hash64(uint16_t bit_length, uint64_t *hash_constants) {
-    
+    // Pre-process input bits
+    uint32_t inputLength = this->input.length() * 8;
+    std::string raw;
+
+    for (int i = 0; i < inputLength / 8; i++) {
+        raw += std::bitset<8>(this->input[i]).to_string();
+    }   
+
+    raw += "1";
+
+    if (inputLength % 1024 < 896) {
+        std::string padding = std::bitset<1024>(inputLength).to_string();
+        raw += padding.substr((inputLength % 1024) + 1, 1024);
+    } else {
+        std::string padding = std::bitset<2048>(inputLength).to_string();
+        raw += padding.substr((inputLength % 2048) + 1, 2048);
+    }
+
+    // Initialize chunks
+    std::vector<uint64_t*> chunks;
+
+    for (int i = 0; i < raw.length() / 1024; i++) {
+        uint64_t chunk[80] = {0};
+
+        for (int j = 0; j < 16; j++) {
+            chunk[j] = std::stoul(raw.substr(j*64, 64), nullptr, 2);
+        }
+
+        chunks.push_back(chunk);
+    }
+
+    // Compress chunks
+    for (int i = 0; i < chunks.size(); i++) {
+        for (int j = 16; j < 80; j++) {
+            uint64_t s0 = SHA2::rotr64(chunks[i][j-15], 1) ^ SHA2::rotr64(chunks[i][j-15], 8) ^ (chunks[i][j-15] >> 7);
+            uint64_t s1 = SHA2::rotr64(chunks[i][j-2], 19) ^ SHA2::rotr64(chunks[i][j-2], 61) ^ (chunks[i][j-2] >> 6);
+            chunks[i][j] = fmod(chunks[i][j-16] + s0 + chunks[i][j-7] + s1, pow(2, 64));
+        }
+    }
+
+    // print vector 
+
+    for (int i = 0; i < chunks.size(); i++) {
+        for (int j = 0; j < 80; j++) {
+            std::cout << chunks[i][j] << " ";
+        }
+    }
+
+    exit(0);
+
+
+    // Mutate chunks
+    for (int i = 0; i < chunks.size(); i++) {
+        uint64_t a = hash_constants[0];
+        uint64_t b = hash_constants[1];
+        uint64_t c = hash_constants[2];
+        uint64_t d = hash_constants[3];
+        uint64_t e = hash_constants[4];
+        uint64_t f = hash_constants[5];
+        uint64_t g = hash_constants[6];
+        uint64_t h = hash_constants[7];
+
+        for (int j = 0; j < 80; j++) {
+            uint64_t s0 = (SHA2::rotr64(e, 14)) ^ (SHA2::rotr64(e, 18)) ^ (SHA2::rotr64(e, 41));
+            uint64_t ch = (e & f) ^ (~e & g);
+            uint64_t temp1 = fmod(h + s0 + ch + SHA2::round_constants_x64[j] + chunks[i][j], pow(2, 64));
+            uint64_t s1 = (SHA2::rotr64(a, 28)) ^ (SHA2::rotr64(a, 34)) ^ (SHA2::rotr64(a, 39));
+            uint64_t maj = (a & b) ^ (a & c) ^ (b & c);
+            uint64_t temp2 = fmod(s1 + maj, pow(2, 64));
+
+            h = g;
+            g = f;
+            f = e;
+            e = fmod(d + temp1, pow(2, 64));
+            d = c;
+            c = b;
+            b = a;
+            a = fmod(temp1 + temp2, pow(2, 64));
+        }
+
+        hash_constants[0] = fmod(hash_constants[0] + a, pow(2, 64));
+        hash_constants[1] = fmod(hash_constants[1] + b, pow(2, 64));
+        hash_constants[2] = fmod(hash_constants[2] + c, pow(2, 64));
+        hash_constants[3] = fmod(hash_constants[3] + d, pow(2, 64));
+        hash_constants[4] = fmod(hash_constants[4] + e, pow(2, 64));
+        hash_constants[5] = fmod(hash_constants[5] + f, pow(2, 64));
+        hash_constants[6] = fmod(hash_constants[6] + g, pow(2, 64));
+        hash_constants[7] = fmod(hash_constants[7] + h, pow(2, 64));
+    }
+
+    for (int i = 0; i < 8; i++) {
+        std::stringstream ss;
+        ss << std::hex << hash_constants[i];
+        this->hash += ss.str();
+    }
+
+    this->hash = this->hash.substr(0, bit_length / 4);
 };
 
 std::string SHA2::getHash() {

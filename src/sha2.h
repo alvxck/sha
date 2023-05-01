@@ -46,8 +46,8 @@ class SHA2 {
         void hash32(uint16_t bit_length, uint32_t *hash_constants);
         void hash64(uint16_t bit_length, uint64_t *hash_constants);
         
-        uint32_t rotr32(uint32_t x, uint32_t n);
-        uint64_t rotr64(uint64_t x, uint64_t n);
+        uint32_t rotr32(uint32_t x, uint8_t n);
+        uint64_t rotr64(uint64_t x, uint8_t n);
         std::string getHash();
 };
 

@@ -1,8 +1,6 @@
 #ifndef SHA_SHA1_H
 #define SHA_SHA1_H
 
-#include <iostream>
-
 class SHA1 {
     private:
         std::string input;

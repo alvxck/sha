@@ -40,7 +40,7 @@ void SHA1::hash32() {
         uint32_t chunk[80] = {0};
 
         for (int j = 0; j < 16; j++) {
-            chunk[j] = std::stoi(raw.substr(j*32, 32), nullptr, 2);
+            chunk[j] = std::stoul(raw.substr(j*32, 32), nullptr, 2);
         }
 
         chunks.push_back(chunk);
