@@ -6,34 +6,21 @@
 #include <sstream>
 #include "sha1.h"
 
-const uint32_t SHA1::entryConstants[80] = {
-    0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999, 
-    0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999, 
-    0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 
-    0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 
-    0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 
-    0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 
-    0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 
-    0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 
-    0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 
-    0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6 
-};
-
-const uint32_t SHA1::hashConstants[5] = {
-    0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0
-};
+SHA1::SHA1(std::string input) {
+    this->input = input;
+}
 
 uint32_t SHA1::rotl(uint32_t x, uint32_t n) {
     return fmod((x << n) | (x >> (32 - n)), pow(2, 32));
 };
 
-std::string sha1(std::string input) {
+void SHA1::hash32() {
     // Pre-process input bits
-    uint32_t inputLength = input.length() * 8;
+    uint32_t inputLength = this->input.length() * 8;
     std::string raw;
 
     for (int i = 0; i < inputLength / 8; i++) {
-        raw += std::bitset<8>(input[i]).to_string();
+        raw += std::bitset<8>(this->input[i]).to_string();
     }   
 
     raw += "1";
@@ -66,21 +53,17 @@ std::string sha1(std::string input) {
         }
     }
 
-    uint32_t hashProcessing[5] = {
-        0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0
-    };
-
     // Mutate chunks
     for (int i = 0; i < chunks.size(); i++) {
-        uint32_t a = SHA1::hashConstants[0];
-        uint32_t b = SHA1::hashConstants[1];
-        uint32_t c = SHA1::hashConstants[2];
-        uint32_t d = SHA1::hashConstants[3];
-        uint32_t e = SHA1::hashConstants[4];
+        uint32_t a = this->hash_constants[0];
+        uint32_t b = this->hash_constants[1];
+        uint32_t c = this->hash_constants[2];
+        uint32_t d = this->hash_constants[3];
+        uint32_t e = this->hash_constants[4];
 
         for (int j = 0; j < 80; j++) {
             uint32_t f = 0;
-            uint32_t k = SHA1::entryConstants[j];
+            uint32_t k = this->entry_constants[j];
 
             if (j < 20) {
                 f = (b & c) | ((~b) & d);
@@ -101,21 +84,27 @@ std::string sha1(std::string input) {
             a = temp;
         }
 
-        hashProcessing[0] = fmod(hashProcessing[0] + a, pow(2, 32));
-        hashProcessing[1] = fmod(hashProcessing[1] + b, pow(2, 32));
-        hashProcessing[2] = fmod(hashProcessing[2] + c, pow(2, 32));
-        hashProcessing[3] = fmod(hashProcessing[3] + d, pow(2, 32));
-        hashProcessing[4] = fmod(hashProcessing[4] + e, pow(2, 32));
+        this->hash_constants[0] = fmod(this->hash_constants[0] + a, pow(2, 32));
+        this->hash_constants[1] = fmod(this->hash_constants[1] + b, pow(2, 32));
+        this->hash_constants[2] = fmod(this->hash_constants[2] + c, pow(2, 32));
+        this->hash_constants[3] = fmod(this->hash_constants[3] + d, pow(2, 32));
+        this->hash_constants[4] = fmod(this->hash_constants[4] + e, pow(2, 32));
     }
 
     // Construct hash
-    std::string output = "";
-
     for (int i = 0; i < 5; i++) {
         std::stringstream ss;
-        ss << std::hex << hashProcessing[i];
-        output += ss.str();
+        ss << std::hex << this->hash_constants[i];
+        this->hash += ss.str();
     }
+}
 
-    return output;
+std::string SHA1::getHash() {
+    return this->hash;
+}
+
+std::string sha1(std::string input) {
+    SHA1 *newHash = new SHA1(input);
+    newHash->hash32();
+    return newHash->getHash();
 }

@@ -1,10 +1,10 @@
 #include <iostream>
-#include "sha2.h"
+#include "sha1.h"
 
 int main() {
     std::string input = "Hello, world!";
 
-    std::cout << sha224(input) << std::endl;
+    std::cout << sha1(input) << std::endl;
 
     return 0;
 }
