@@ -10,14 +10,17 @@ SHA2::SHA2(std::string input) {
     this->input = input;
 }
 
+// Right rotate for 32-bit integers
 uint32_t SHA2::rotr32(uint32_t x, uint8_t n) {
     return fmod((x >> n) | (x << (32 - n)), pow(2, 32));
 };
 
+// Right rotate for 64-bit integers
 uint64_t SHA2::rotr64(uint64_t x, uint8_t n) {
     return fmodl((x >> n) | (x << (64 - n)), powl(2, 64));
 };
 
+// Intermediate hashing step for 32-bit algorithms 
 void SHA2::hash32(uint16_t bit_length, uint32_t *hash_constants) {
     // Pre-process input bits
     uint32_t inputLength = this->input.length() * 8;
@@ -98,6 +101,7 @@ void SHA2::hash32(uint16_t bit_length, uint32_t *hash_constants) {
         hash_constants[7] = fmod(hash_constants[7] + h, pow(2, 32));
     }
 
+    // Concatenate hash
     for (int i = 0; i < 8; i++) {
         std::stringstream ss;
         ss << std::hex << hash_constants[i];
@@ -105,6 +109,7 @@ void SHA2::hash32(uint16_t bit_length, uint32_t *hash_constants) {
     }
 };
 
+// Intermediate hashing step for 64-bit algorithms
 void SHA2::hash64(uint16_t bit_length, uint64_t *hash_constants) {
     // Pre-process input bits
     uint32_t inputLength = this->input.length() * 8;
@@ -185,6 +190,7 @@ void SHA2::hash64(uint16_t bit_length, uint64_t *hash_constants) {
         hash_constants[7] = fmodl(hash_constants[7] + h, powl(2, 64));
     }
 
+    // Concatenate hash
     for (int i = 0; i < 8; i++) {
         std::stringstream ss;
         ss << std::hex << hash_constants[i];
@@ -194,6 +200,7 @@ void SHA2::hash64(uint16_t bit_length, uint64_t *hash_constants) {
     this->hash = this->hash.substr(0, bit_length / 4);
 };
 
+// Returns hash
 std::string SHA2::getHash() {
     return this->hash;
 }

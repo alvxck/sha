@@ -10,10 +10,12 @@ SHA1::SHA1(std::string input) {
     this->input = input;
 }
 
+// Left rotate for 32-bit integers
 uint32_t SHA1::rotl(uint32_t x, uint32_t n) {
     return fmod((x << n) | (x >> (32 - n)), pow(2, 32));
 };
 
+// Intermediate hashing step for 32-bit algorithm
 void SHA1::hash32() {
     // Pre-process input bits
     uint32_t inputLength = this->input.length() * 8;
@@ -91,7 +93,7 @@ void SHA1::hash32() {
         this->hash_constants[4] = fmod(this->hash_constants[4] + e, pow(2, 32));
     }
 
-    // Construct hash
+    // Concatenate hash
     for (int i = 0; i < 5; i++) {
         std::stringstream ss;
         ss << std::hex << this->hash_constants[i];
@@ -99,6 +101,7 @@ void SHA1::hash32() {
     }
 }
 
+// Return hash
 std::string SHA1::getHash() {
     return this->hash;
 }
