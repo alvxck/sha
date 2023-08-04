@@ -1,6 +1,6 @@
 ﻿# SHA
 
-C++ implementation of SHA-1, SHA-2, and SHA-3 Cryptographic Hash Algorithms.
+C++ implementation of SHA-1 and SHA-2 Cryptographic Hash Algorithms.
 
 ## Overview
 
